@@ -13,6 +13,6 @@ public class ErrorMessage {
 
 	private String traceId;
 	private String operation;
-	private int code;
 	private String message;
+	private int code;
 }

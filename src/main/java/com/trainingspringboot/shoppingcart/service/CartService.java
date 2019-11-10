@@ -1,12 +1,12 @@
 package com.trainingspringboot.shoppingcart.service;
 
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
+import com.trainingspringboot.shoppingcart.enums.EnumCartState;
 import com.trainingspringboot.shoppingcart.error.EntityNotFoundException;
 import com.trainingspringboot.shoppingcart.repository.CartItemRepository;
 import com.trainingspringboot.shoppingcart.repository.CartRepository;
 import com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import java.util.List;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,24 +43,25 @@ public class CartService implements ICartService {
 
 	@Override
 	public void delete(Long id) {
-
+		cartRepository.delete(get(id));
 	}
 
 	@Override
 	public Cart update(Cart entity) {
-		return null;
+		Cart cart = get(entity.getCartUid());
+		cart.setState(entity.getState());
+		return cartRepository.save(cart);
 	}
 
 	@Override
 	@Transactional
 	public Cart save(Cart cart) {
-		MDC.put("operation", "createCart");
+		cart.setState(EnumCartState.PENDING.name());
 		cart.getItems().stream().forEach(cartItem -> {
 					restTemplate
 							.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(), Object.class);
 				}
 		);
-		cart.setState("PENDING");
 		return cartRepository.save(cart);
 	}
 }

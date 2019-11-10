@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -17,6 +18,11 @@ public class RestControllerAdvice {
 	@ExceptionHandler(EntityNotFoundException.class)
 	public ResponseEntity<ErrorMessage> handleNotFoundError(Exception e) {
 		return buildErrorMessageResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorMessage> handleBadRequest(Exception e) {
+		return buildErrorMessageResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(Exception.class)
@@ -35,6 +41,5 @@ public class RestControllerAdvice {
 						.build(),
 				httpStatus);
 	}
-
 
 }

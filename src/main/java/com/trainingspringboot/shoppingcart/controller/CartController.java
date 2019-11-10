@@ -4,6 +4,7 @@ import com.trainingspringboot.shoppingcart.entity.model.Cart;
 import com.trainingspringboot.shoppingcart.entity.request.CreateCartRequest;
 import com.trainingspringboot.shoppingcart.entity.response.CreateCartResponse;
 import com.trainingspringboot.shoppingcart.entity.response.GetCartResponse;
+import com.trainingspringboot.shoppingcart.entity.response.UpdateCartRequest;
 import com.trainingspringboot.shoppingcart.service.CartService;
 import com.trainingspringboot.shoppingcart.utils.annotation.ServiceOperation;
 import java.util.stream.Collectors;
@@ -12,7 +13,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,14 +54,14 @@ public class CartController {
 
 	@PatchMapping("/{id}")
 	@ServiceOperation("updateCart")
-	public ResponseEntity<?> updateCart(@PathVariable("id") Long id, @RequestBody Cart cart) {
+	public ResponseEntity<?> updateCart(@PathVariable("id") Long id, @RequestBody @Valid UpdateCartRequest cart) {
 		cart.setCartUid(id);
-		return new ResponseEntity<>(cartService.update(cart), HttpStatus.OK);
+		return new ResponseEntity<>(cartService.update(mapper.map(cart, Cart.class)), HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
 	@ServiceOperation("deleteCart")
-	public ResponseEntity<?> deleteItem(@PathVariable("id") Long id) {
+	public ResponseEntity<HttpStatus> deleteItem(@PathVariable("id") Long id) {
 		cartService.delete(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
