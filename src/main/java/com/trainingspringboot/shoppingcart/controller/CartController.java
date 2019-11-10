@@ -49,7 +49,10 @@ public class CartController {
 	@GetMapping("/{id}")
 	@ServiceOperation("getCart")
 	public ResponseEntity<GetCartResponse> getItem(@PathVariable("id") Long id) {
-		return new ResponseEntity<>(mapper.map(cartService.get(id), GetCartResponse.class), HttpStatus.OK);
+		Cart cart = cartService.get(id);
+		GetCartResponse response = mapper.map(cart, GetCartResponse.class);
+		response.setTotal(cartService.calculateCost(cart));
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	@PatchMapping("/{id}")
@@ -71,8 +74,21 @@ public class CartController {
 	public ResponseEntity<Page<GetCartResponse>> listCarts(@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "20") int size) {
 		return new ResponseEntity<>(new PageImpl<>(
-				cartService.list(page, size).stream().map(c -> mapper.map(c, GetCartResponse.class))
+				cartService.list(page, size).stream().map(c -> {
+							GetCartResponse response = mapper.map(c, GetCartResponse.class);
+							response.setTotal(cartService.calculateCost(c));
+							return response;
+						}
+				)
 						.collect(Collectors.toList())), HttpStatus.OK);
 	}
 
+	@GetMapping("/{id}/items")
+	@ServiceOperation("listCartItems")
+	public ResponseEntity<Page<GetCartResponse>> listCartItems(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "20") int size) {
+		return new ResponseEntity<>(new PageImpl<>(
+				cartService.list(page, size).stream().map(c -> mapper.map(c, GetCartResponse.class))
+						.collect(Collectors.toList())), HttpStatus.OK);
+	}
 }

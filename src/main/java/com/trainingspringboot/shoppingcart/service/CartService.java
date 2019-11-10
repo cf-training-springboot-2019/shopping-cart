@@ -1,12 +1,17 @@
 package com.trainingspringboot.shoppingcart.service;
 
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
+import com.trainingspringboot.shoppingcart.entity.model.CartItem;
+import com.trainingspringboot.shoppingcart.entity.response.GetCartResponse;
+import com.trainingspringboot.shoppingcart.entity.response.GetItemResponse;
 import com.trainingspringboot.shoppingcart.enums.EnumCartState;
 import com.trainingspringboot.shoppingcart.error.EntityNotFoundException;
 import com.trainingspringboot.shoppingcart.repository.CartItemRepository;
 import com.trainingspringboot.shoppingcart.repository.CartRepository;
 import com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,5 +68,24 @@ public class CartService implements ICartService {
 				}
 		);
 		return cartRepository.save(cart);
+	}
+
+	@Override
+	public List<CartItem> listCartItems(Long cartUid) {
+		return null;
+	}
+
+	@Override
+	public Page<CartItem> listCartItems(Long cartUid, int page, int size) {
+		return null;
+	}
+
+	@Override
+	public BigDecimal calculateCost(Cart cart) {
+		return cart.getItems().stream().map(cartItem ->
+				restTemplate
+						.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(),
+								GetItemResponse.class).getBody().getPriceTag().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
+		).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 }

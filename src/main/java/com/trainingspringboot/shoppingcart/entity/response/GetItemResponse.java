@@ -1,7 +1,8 @@
 package com.trainingspringboot.shoppingcart.entity.response;
 
+
 import java.math.BigDecimal;
-import java.util.List;
+import java.math.BigInteger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,11 +12,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetCartResponse {
+public class GetItemResponse {
 
-	private Long cartUid;
-	private List<GetCartItemResponse> items;
+	private String name;
 	private String state;
-	private BigDecimal total;
+	private String description;
+	private String market;
+	private BigInteger stock;
+	private BigDecimal priceTag;
 
 }
