@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorMessage {
+public class GetCartItemResponse {
 
-	private String traceId;
-	private String operation;
-	private int code;
-	private String message;
+	private Long itemUid;
+	private Integer quantity;
+
 }

@@ -1,5 +1,6 @@
 package com.trainingspringboot.shoppingcart.entity.response;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,10 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorMessage {
+public class GetCartResponse {
 
-	private String traceId;
-	private String operation;
-	private int code;
-	private String message;
+	private Long cartUid;
+	private List<GetCartItemResponse> items;
+	private String state;
+
 }

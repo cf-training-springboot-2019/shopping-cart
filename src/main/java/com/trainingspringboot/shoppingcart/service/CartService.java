@@ -1,12 +1,15 @@
 package com.trainingspringboot.shoppingcart.service;
 
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
+import com.trainingspringboot.shoppingcart.error.EntityNotFoundException;
 import com.trainingspringboot.shoppingcart.repository.CartItemRepository;
 import com.trainingspringboot.shoppingcart.repository.CartRepository;
+import com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import java.util.List;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -24,8 +27,8 @@ public class CartService implements ICartService {
 	private RestTemplate restTemplate;
 
 	@Override
-	public Page<Cart> list(int size, int page) {
-		return null;
+	public Page<Cart> list(int page, int size) {
+		return cartRepository.findAll(PageRequest.of(page, size));
 	}
 
 	@Override
@@ -34,8 +37,8 @@ public class CartService implements ICartService {
 	}
 
 	@Override
-	public Cart get(Long id) {
-		return null;
+	public Cart get(Long id) throws EntityNotFoundException {
+		return cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(ShoppingCartConstant.CART, id));
 	}
 
 	@Override
@@ -55,7 +58,6 @@ public class CartService implements ICartService {
 		cart.getItems().stream().forEach(cartItem -> {
 					restTemplate
 							.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(), Object.class);
-					//cartItemRepository.save(cartItem);
 				}
 		);
 		cart.setState("PENDING");

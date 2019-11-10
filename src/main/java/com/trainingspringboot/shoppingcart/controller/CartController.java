@@ -3,10 +3,16 @@ package com.trainingspringboot.shoppingcart.controller;
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
 import com.trainingspringboot.shoppingcart.entity.request.CreateCartRequest;
 import com.trainingspringboot.shoppingcart.entity.response.CreateCartResponse;
+import com.trainingspringboot.shoppingcart.entity.response.GetCartResponse;
 import com.trainingspringboot.shoppingcart.service.CartService;
-import java.util.List;
+import com.trainingspringboot.shoppingcart.utils.annotation.ServiceOperation;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,32 +40,39 @@ public class CartController {
 	private ModelMapper mapper;
 
 	@PostMapping
-	public ResponseEntity<CreateCartResponse> createCart(@RequestBody CreateCartRequest request) {
+	@ServiceOperation("createCart")
+	public ResponseEntity<CreateCartResponse> createCart(@RequestBody @Valid CreateCartRequest request) {
 		return new ResponseEntity<>(mapper.map(cartService.save(mapper.map(request, Cart.class)), CreateCartResponse.class),
 				HttpStatus.CREATED);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<?> getItem(@PathVariable("id") Long id) {
-		Cart cart = cartService.get(id);
-		return new ResponseEntity<>(cart, HttpStatus.OK);
+	@ServiceOperation("getCart")
+	public ResponseEntity<GetCartResponse> getItem(@PathVariable("id") Long id) {
+		return new ResponseEntity<>(mapper.map(cartService.get(id), GetCartResponse.class), HttpStatus.OK);
 	}
 
 	@PatchMapping("/{id}")
+	@ServiceOperation("updateCart")
 	public ResponseEntity<?> updateCart(@PathVariable("id") Long id, @RequestBody Cart cart) {
 		cart.setCartUid(id);
 		return new ResponseEntity<>(cartService.update(cart), HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
+	@ServiceOperation("deleteCart")
 	public ResponseEntity<?> deleteItem(@PathVariable("id") Long id) {
 		cartService.delete(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping
-	public ResponseEntity<List<Cart>> listCarts() {
-		return new ResponseEntity<>(cartService.list(), HttpStatus.OK);
+	@ServiceOperation("listCarts")
+	public ResponseEntity<Page<GetCartResponse>> listCarts(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "20") int size) {
+		return new ResponseEntity<>(new PageImpl<>(
+				cartService.list(page, size).stream().map(c -> mapper.map(c, GetCartResponse.class))
+						.collect(Collectors.toList())), HttpStatus.OK);
 	}
 
 }
