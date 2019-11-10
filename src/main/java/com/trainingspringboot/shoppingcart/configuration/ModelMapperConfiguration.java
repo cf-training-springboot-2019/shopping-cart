@@ -1,7 +1,5 @@
 package com.trainingspringboot.shoppingcart.configuration;
 
-import com.trainingspringboot.shoppingcart.entity.model.Cart;
-import com.trainingspringboot.shoppingcart.entity.response.GetCartResponse;
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.modelmapper.Converter;

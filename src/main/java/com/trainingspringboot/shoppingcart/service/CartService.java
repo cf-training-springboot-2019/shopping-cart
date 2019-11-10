@@ -2,7 +2,6 @@ package com.trainingspringboot.shoppingcart.service;
 
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
 import com.trainingspringboot.shoppingcart.entity.model.CartItem;
-import com.trainingspringboot.shoppingcart.entity.response.GetCartResponse;
 import com.trainingspringboot.shoppingcart.entity.response.GetItemResponse;
 import com.trainingspringboot.shoppingcart.enums.EnumCartState;
 import com.trainingspringboot.shoppingcart.error.EntityNotFoundException;
@@ -48,7 +47,8 @@ public class CartService implements ICartService {
 
 	@Override
 	public void delete(Long id) {
-		cartRepository.delete(get(id));
+		exists(id);
+		cartRepository.deleteById(id);
 	}
 
 	@Override
@@ -62,30 +62,40 @@ public class CartService implements ICartService {
 	@Transactional
 	public Cart save(Cart cart) {
 		cart.setState(EnumCartState.PENDING.name());
-		cart.getItems().stream().forEach(cartItem -> {
-					restTemplate
-							.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(), Object.class);
-				}
+		cart.getItems().stream().forEach(cartItem -> restTemplate
+				.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(), GetItemResponse.class)
 		);
-		return cartRepository.save(cart);
+		final Cart persistedCart = cartRepository.save(cart);
+		cart.getItems().stream().forEach(cartItem -> {
+			cartItem.setCart(persistedCart);
+			cartItemRepository.save(cartItem);
+		});
+		return cart;
 	}
 
 	@Override
 	public List<CartItem> listCartItems(Long cartUid) {
-		return null;
+		return cartItemRepository.findByCartCartUid(cartUid);
 	}
 
 	@Override
-	public Page<CartItem> listCartItems(Long cartUid, int page, int size) {
-		return null;
-	}
-
-	@Override
-	public BigDecimal calculateCost(Cart cart) {
+	public BigDecimal calculateCartTotal(Cart cart) {
 		return cart.getItems().stream().map(cartItem ->
 				restTemplate
 						.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(),
 								GetItemResponse.class).getBody().getPriceTag().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
 		).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	public CartItem getCartItem(Long cartUid, Long cartItemUid) {
+		exists(cartUid);
+		return cartItemRepository.findByCartItemUidAndCartCartUid(cartItemUid, cartUid)
+				.orElseThrow(() -> new EntityNotFoundException(ShoppingCartConstant.CART_ITEM, cartItemUid));
+	}
+
+	private void exists(Long cartUid) {
+		if (!cartRepository.existsById(cartUid)) {
+			throw new EntityNotFoundException(ShoppingCartConstant.CART, cartUid);
+		}
 	}
 }

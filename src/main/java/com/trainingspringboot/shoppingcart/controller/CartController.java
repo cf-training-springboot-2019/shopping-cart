@@ -3,10 +3,12 @@ package com.trainingspringboot.shoppingcart.controller;
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
 import com.trainingspringboot.shoppingcart.entity.request.CreateCartRequest;
 import com.trainingspringboot.shoppingcart.entity.response.CreateCartResponse;
+import com.trainingspringboot.shoppingcart.entity.response.GetCartItemResponse;
 import com.trainingspringboot.shoppingcart.entity.response.GetCartResponse;
 import com.trainingspringboot.shoppingcart.entity.response.UpdateCartRequest;
 import com.trainingspringboot.shoppingcart.service.CartService;
 import com.trainingspringboot.shoppingcart.utils.annotation.ServiceOperation;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -51,7 +53,7 @@ public class CartController {
 	public ResponseEntity<GetCartResponse> getItem(@PathVariable("id") Long id) {
 		Cart cart = cartService.get(id);
 		GetCartResponse response = mapper.map(cart, GetCartResponse.class);
-		response.setTotal(cartService.calculateCost(cart));
+		response.setTotal(cartService.calculateCartTotal(cart));
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -76,7 +78,7 @@ public class CartController {
 		return new ResponseEntity<>(new PageImpl<>(
 				cartService.list(page, size).stream().map(c -> {
 							GetCartResponse response = mapper.map(c, GetCartResponse.class);
-							response.setTotal(cartService.calculateCost(c));
+							response.setTotal(cartService.calculateCartTotal(c));
 							return response;
 						}
 				)
@@ -85,10 +87,16 @@ public class CartController {
 
 	@GetMapping("/{id}/items")
 	@ServiceOperation("listCartItems")
-	public ResponseEntity<Page<GetCartResponse>> listCartItems(@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "20") int size) {
-		return new ResponseEntity<>(new PageImpl<>(
-				cartService.list(page, size).stream().map(c -> mapper.map(c, GetCartResponse.class))
-						.collect(Collectors.toList())), HttpStatus.OK);
+	public ResponseEntity<List<GetCartItemResponse>> listCartItems(@PathVariable("id") Long cartUid) {
+		return new ResponseEntity<>(
+				cartService.listCartItems(cartUid).stream().map(c -> mapper.map(c, GetCartItemResponse.class))
+						.collect(Collectors.toList()), HttpStatus.OK);
+	}
+
+	@GetMapping("/{cart-uid}/items/{cart-item-uid}")
+	@ServiceOperation("getCartItem")
+	public ResponseEntity<GetCartItemResponse> getCartItem(@PathVariable("cart-uid") Long cartUid,
+			@PathVariable("cart-item-uid") Long cartItemUid) {
+		return new ResponseEntity<>(mapper.map(cartService.getCartItem(cartUid, cartItemUid), GetCartItemResponse.class), HttpStatus.OK);
 	}
 }

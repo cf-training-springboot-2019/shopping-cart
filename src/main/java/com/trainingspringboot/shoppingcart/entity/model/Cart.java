@@ -2,6 +2,7 @@ package com.trainingspringboot.shoppingcart.entity.model;
 
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,11 +22,10 @@ public class Cart extends Auditable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "ID")
 	private Long cartUid;
-
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CartItem> items;
-
 	private String state;
 
 }
