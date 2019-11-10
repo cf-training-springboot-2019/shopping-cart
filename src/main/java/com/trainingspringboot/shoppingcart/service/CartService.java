@@ -55,7 +55,7 @@ public class CartService implements ICartService {
 		cart.getItems().stream().forEach(cartItem -> {
 					restTemplate
 							.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(), Object.class);
-					cartItemRepository.save(cartItem);
+					//cartItemRepository.save(cartItem);
 				}
 		);
 		cart.setState("PENDING");
