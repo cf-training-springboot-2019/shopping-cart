@@ -1,8 +1,11 @@
 package com.trainingspringboot.shoppingcart.controller;
 
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
+import com.trainingspringboot.shoppingcart.entity.request.CreateCartRequest;
+import com.trainingspringboot.shoppingcart.entity.response.CreateCartResponse;
 import com.trainingspringboot.shoppingcart.service.CartService;
 import java.util.List;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +29,13 @@ public class CartController {
 	 * @JavaDoc ModelMapper is a mapping tool easily configurable to accommodate most application defined entities check
 	 * some configuration example at: http://modelmapper.org/user-manual/
 	 */
-	//@Autowired
-	//private ModelMapper mapper;
+	@Autowired
+	private ModelMapper mapper;
+
 	@PostMapping
-	public ResponseEntity<?> createCart(@RequestBody Cart request) {
-		return new ResponseEntity<>(cartService.save(request), HttpStatus.CREATED);
+	public ResponseEntity<CreateCartResponse> createCart(@RequestBody CreateCartRequest request) {
+		return new ResponseEntity<>(mapper.map(cartService.save(mapper.map(request, Cart.class)), CreateCartResponse.class),
+				HttpStatus.CREATED);
 	}
 
 	@GetMapping("/{id}")
