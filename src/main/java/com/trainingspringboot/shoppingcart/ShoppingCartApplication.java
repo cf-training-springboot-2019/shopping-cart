@@ -1,5 +1,6 @@
 package com.trainingspringboot.shoppingcart;
 
+import com.trainingspringboot.shoppingcart.utils.filter.LoggingHandler;
 import com.trainingspringboot.shoppingcart.utils.filter.MdcInitHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,11 +16,12 @@ public class ShoppingCartApplication {
 	}
 
 	@Bean
-	public WebMvcConfigurer initializerWebMvcConfigurer(MdcInitHandler mdcInitHandler) {
+	public WebMvcConfigurer initializerWebMvcConfigurer(MdcInitHandler mdcInitHandler, LoggingHandler loggingHandler) {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
 				registry.addInterceptor(mdcInitHandler);
+				registry.addInterceptor(loggingHandler);
 			}
 		};
 	}

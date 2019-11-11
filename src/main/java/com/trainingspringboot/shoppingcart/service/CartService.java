@@ -8,7 +8,6 @@ import com.trainingspringboot.shoppingcart.error.EntityNotFoundException;
 import com.trainingspringboot.shoppingcart.repository.CartRepository;
 import com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;

@@ -17,7 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class MdcInitHandler implements HandlerInterceptor {
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		MDC.put(ShoppingCartConstant.TRACE_ID,
 				Optional.ofNullable(request.getHeader(TRACE_ID_HEADER)).orElse(UUID.randomUUID().toString()));
 		if (handler.getClass().isAssignableFrom(HandlerMethod.class)) {

@@ -24,5 +24,8 @@ public class ShoppingCartConstant {
 	 * Messages
 	 */
 	public static final String ENTITY_NOT_FOUND_MSG = "Entity {%s} :: UID {%s} not found.";
+	public static final String LOGGING_HANDLER_INBOUND_MSG = "Received HTTP [%s] Request to [%s] at [%s]";
+	public static final String LOGGING_HANDLER_OUTBOUND_MSG = "Responded with Status [%s] at [%s]";
+	public static final String LOGGING_HANDLER_PROCESS_TIME_MSG = "Total processing time [%s] ms";
 
 }
