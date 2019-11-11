@@ -2,7 +2,7 @@ package com.trainingspringboot.shoppingcart.service;
 
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
 import com.trainingspringboot.shoppingcart.entity.model.CartItem;
-import com.trainingspringboot.shoppingcart.entity.response.GetItemResponse;
+import com.trainingspringboot.shoppingcart.entity.request.DispatchItemRequest;
 import com.trainingspringboot.shoppingcart.enums.EnumCartState;
 import com.trainingspringboot.shoppingcart.error.EntityNotFoundException;
 import com.trainingspringboot.shoppingcart.repository.CartRepository;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class CartService implements ICartService {
@@ -29,7 +28,7 @@ public class CartService implements ICartService {
 	private CartItemService cartItemService;
 
 	@Autowired
-	private RestTemplate restTemplate;
+	private ItemStorageService itemStorageService;
 
 
 	@Override
@@ -56,8 +55,17 @@ public class CartService implements ICartService {
 	@Override
 	public Cart update(Cart entity) {
 		Cart cart = get(entity.getCartUid());
-		cart.setState(entity.getState());
-		return cartRepository.save(cart);
+		if (entity.getState().equalsIgnoreCase(EnumCartState.SUBMITTED.name()) && !cart.getState()
+				.equalsIgnoreCase(EnumCartState.SUBMITTED.name())) {
+			cart = get(entity.getCartUid());
+			cart.getItems().forEach(i -> itemStorageService
+					.dispatchItem(i.getItemUid(), DispatchItemRequest.builder().quantity(i.getQuantity()).build()));
+		}
+		if (!cart.getState().equalsIgnoreCase(EnumCartState.SUBMITTED.name())) {
+			cart.setState(entity.getState());
+			cartRepository.save(cart);
+		}
+		return cart;
 	}
 
 	@Override
@@ -66,9 +74,7 @@ public class CartService implements ICartService {
 		cart.setState(EnumCartState.PENDING.name());
 		Map<Long, CartItem> cartItemMap = cart.getItems().stream()
 				.collect(Collectors.toMap(CartItem::getItemUid, Function.identity(), (existing, replacement) -> {
-					restTemplate
-							.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + existing.getItemUid(),
-									GetItemResponse.class);
+					itemStorageService.getStoredItem(existing.getItemUid());
 					existing.setQuantity(existing.getQuantity() + replacement.getQuantity());
 					return existing;
 				}));
@@ -89,9 +95,8 @@ public class CartService implements ICartService {
 	@Override
 	public BigDecimal calculateCartTotal(Cart cart) {
 		return cart.getItems().stream().map(cartItem ->
-				restTemplate
-						.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(),
-								GetItemResponse.class).getBody().getPriceTag().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
+				itemStorageService.getStoredItem(cartItem.getItemUid())
+						.getPriceTag().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
 		).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 

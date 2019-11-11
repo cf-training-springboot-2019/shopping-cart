@@ -6,6 +6,7 @@ import com.trainingspringboot.shoppingcart.entity.response.CreateCartResponse;
 import com.trainingspringboot.shoppingcart.entity.response.GetCartItemResponse;
 import com.trainingspringboot.shoppingcart.entity.response.GetCartResponse;
 import com.trainingspringboot.shoppingcart.entity.response.UpdateCartRequest;
+import com.trainingspringboot.shoppingcart.entity.response.UpdateCartResponse;
 import com.trainingspringboot.shoppingcart.service.CartService;
 import com.trainingspringboot.shoppingcart.utils.annotation.ServiceOperation;
 import java.util.List;
@@ -62,7 +63,8 @@ public class CartController {
 	@ServiceOperation("updateCart")
 	public ResponseEntity<?> updateCart(@PathVariable("id") Long id, @RequestBody @Valid UpdateCartRequest cart) {
 		cart.setCartUid(id);
-		return new ResponseEntity<>(cartService.update(mapper.map(cart, Cart.class)), HttpStatus.OK);
+		return new ResponseEntity<>(mapper.map(cartService.update(mapper.map(cart, Cart.class)), UpdateCartResponse.class),
+				HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
