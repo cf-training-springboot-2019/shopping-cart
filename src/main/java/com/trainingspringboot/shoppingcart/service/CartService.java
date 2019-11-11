@@ -28,7 +28,7 @@ public class CartService implements ICartService {
 	private CartItemService cartItemService;
 
 	@Autowired
-	private ItemStorageService itemStorageService;
+	private ItemStorageRestClientService itemStorageService;
 
 
 	@Override
