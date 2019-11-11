@@ -5,11 +5,13 @@ import com.trainingspringboot.shoppingcart.entity.model.CartItem;
 import com.trainingspringboot.shoppingcart.entity.response.GetItemResponse;
 import com.trainingspringboot.shoppingcart.enums.EnumCartState;
 import com.trainingspringboot.shoppingcart.error.EntityNotFoundException;
-import com.trainingspringboot.shoppingcart.repository.CartItemRepository;
 import com.trainingspringboot.shoppingcart.repository.CartRepository;
 import com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,10 +27,11 @@ public class CartService implements ICartService {
 	private CartRepository cartRepository;
 
 	@Autowired
-	private CartItemRepository cartItemRepository;
+	private CartItemService cartItemService;
 
 	@Autowired
 	private RestTemplate restTemplate;
+
 
 	@Override
 	public Page<Cart> list(int page, int size) {
@@ -62,20 +65,26 @@ public class CartService implements ICartService {
 	@Transactional
 	public Cart save(Cart cart) {
 		cart.setState(EnumCartState.PENDING.name());
-		cart.getItems().stream().forEach(cartItem -> restTemplate
-				.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + cartItem.getItemUid(), GetItemResponse.class)
-		);
+		Map<Long, CartItem> cartItemMap = cart.getItems().stream()
+				.collect(Collectors.toMap(CartItem::getItemUid, Function.identity(), (existing, replacement) -> {
+					restTemplate
+							.getForEntity("http://localhost:8080/item-storage/api/v1/items/" + existing.getItemUid(),
+									GetItemResponse.class);
+					existing.setQuantity(existing.getQuantity() + replacement.getQuantity());
+					return existing;
+				}));
+		cart.setItems(cartItemMap.values().stream().collect(Collectors.toList()));
 		final Cart persistedCart = cartRepository.save(cart);
 		cart.getItems().stream().forEach(cartItem -> {
 			cartItem.setCart(persistedCart);
-			cartItemRepository.save(cartItem);
+			cartItemService.save(cartItem);
 		});
 		return cart;
 	}
 
 	@Override
 	public List<CartItem> listCartItems(Long cartUid) {
-		return cartItemRepository.findByCartCartUid(cartUid);
+		return cartItemService.listCartItems(cartUid);
 	}
 
 	@Override
@@ -89,8 +98,7 @@ public class CartService implements ICartService {
 
 	public CartItem getCartItem(Long cartUid, Long cartItemUid) {
 		exists(cartUid);
-		return cartItemRepository.findByCartItemUidAndCartCartUid(cartItemUid, cartUid)
-				.orElseThrow(() -> new EntityNotFoundException(ShoppingCartConstant.CART_ITEM, cartItemUid));
+		return cartItemService.getCartCartItem(cartItemUid, cartUid);
 	}
 
 	private void exists(Long cartUid) {
