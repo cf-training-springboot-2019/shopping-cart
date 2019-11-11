@@ -109,4 +109,12 @@ public class CartController {
 	public ResponseEntity<HttpStatus> addCartItem(@PathVariable("id") Long cartUid) {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+
+	@DeleteMapping("/{cart-uid}/items/{cart-item-uid}")
+	@ServiceOperation("removeCartItem")
+	public ResponseEntity<GetCartItemResponse> removeCartItem(@PathVariable("cart-uid") Long cartUid,
+			@PathVariable("cart-item-uid") Long cartItemUid) {
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 }
