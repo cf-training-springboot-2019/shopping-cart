@@ -34,10 +34,10 @@ public class CartItemService implements ICartItemService {
 
 
 	@Override
-	public CartItem getCartCartItem(Long cartItemUid, Long cartUid) {
-		return cartItemRepository.findByCartItemUidAndCartCartUid(cartItemUid, cartUid)
+	public CartItem getCartCartItem(Long itemUid, Long cartUid) {
+		return cartItemRepository.findByItemUidAndCartCartUid(itemUid, cartUid)
 				.orElseThrow(() -> new EntityNotFoundException(
-						ShoppingCartConstant.CART_ITEM, cartItemUid));
+						ShoppingCartConstant.CART_ITEM, itemUid));
 	}
 
 	@Override

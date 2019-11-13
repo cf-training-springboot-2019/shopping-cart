@@ -1,7 +1,12 @@
 package com.trainingspringboot.shoppingcart.service;
 
+import static com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant.FRONT_SLASH_SEPARATOR;
+import static com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant.ITEM_STORAGE_BASE_URL;
+import static com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant.ITEM_STORAGE_DISPATCH_URI;
+
 import com.trainingspringboot.shoppingcart.entity.request.DispatchItemRequest;
 import com.trainingspringboot.shoppingcart.entity.response.GetItemResponse;
+import com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -12,9 +17,7 @@ public class ItemStorageRestClientService {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	private final String ITEM_STORAGE_BASE_URL = "http://localhost:8080/item-storage/api/v1/items";
-	private final String ITEM_STORAGE_DISPATCH_URI = "dispatch";
-	private final String FRONT_SLASH_SEPARATOR = "/";
+
 
 	public GetItemResponse getStoredItem(Long itemUid) {
 		return restTemplate

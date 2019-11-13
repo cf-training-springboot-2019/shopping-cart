@@ -1,5 +1,10 @@
 package com.trainingspringboot.shoppingcart.controller;
 
+import static com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant.FRONT_SLASH_SEPARATOR;
+import static com.trainingspringboot.shoppingcart.utils.constant.ShoppingCartConstant.ITEM_STORAGE_BASE_URL;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import com.trainingspringboot.shoppingcart.entity.model.Cart;
 import com.trainingspringboot.shoppingcart.entity.request.CreateCartRequest;
 import com.trainingspringboot.shoppingcart.entity.response.CreateCartResponse;
@@ -16,6 +21,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("carts")
+@RequestMapping("/carts")
 public class CartController {
 
 	@Autowired
@@ -52,7 +60,7 @@ public class CartController {
 
 	@GetMapping("/{id}")
 	@ServiceOperation("getCart")
-	public ResponseEntity<GetCartResponse> getItem(@PathVariable("id") Long id) {
+	public ResponseEntity<GetCartResponse> getCart(@PathVariable("id") Long id) {
 		Cart cart = cartService.get(id);
 		GetCartResponse response = mapper.map(cart, GetCartResponse.class);
 		response.setTotal(cartService.calculateCartTotal(cart));
@@ -90,17 +98,25 @@ public class CartController {
 
 	@GetMapping("/{id}/items")
 	@ServiceOperation("listCartItems")
-	public ResponseEntity<List<GetCartItemResponse>> listCartItems(@PathVariable("id") Long cartUid) {
-		return new ResponseEntity<>(
-				cartService.listCartItems(cartUid).stream().map(c -> mapper.map(c, GetCartItemResponse.class))
-						.collect(Collectors.toList()), HttpStatus.OK);
+	public ResponseEntity<CollectionModel<EntityModel<GetCartItemResponse>>> listCartItems(
+			@PathVariable("id") Long cartUid) {
+		List<EntityModel<GetCartItemResponse>> entityModels = cartService.listCartItems(cartUid).stream().map(c ->
+				new EntityModel<>(mapper.map(c, GetCartItemResponse.class),
+						linkTo(methodOn(CartController.class).getCartItem(cartUid, c.getItemUid())).withRel("Get item"),
+						linkTo(methodOn(CartController.class).deleteItem(c.getItemUid())).withRel("Decrease item qty"))
+		).collect(Collectors.toList());
+		return new ResponseEntity<>(new CollectionModel<>(entityModels), HttpStatus.OK);
 	}
 
-	@GetMapping("/{cart-uid}/items/{cart-item-uid}")
+	@GetMapping("/{cart-uid}/items/{item-uid}")
 	@ServiceOperation("getCartItem")
-	public ResponseEntity<GetCartItemResponse> getCartItem(@PathVariable("cart-uid") Long cartUid,
-			@PathVariable("cart-item-uid") Long cartItemUid) {
-		return new ResponseEntity<>(mapper.map(cartService.getCartItem(cartUid, cartItemUid), GetCartItemResponse.class),
+	public ResponseEntity<EntityModel<GetCartItemResponse>> getCartItem(@PathVariable("cart-uid") Long cartUid,
+			@PathVariable("item-uid") Long itemUid) {
+		GetCartItemResponse item = mapper.map(cartService.getCartItem(cartUid, itemUid), GetCartItemResponse.class);
+		EntityModel model = new EntityModel<>(item,
+				new Link(String.join(FRONT_SLASH_SEPARATOR, ITEM_STORAGE_BASE_URL, String.valueOf(itemUid)))
+						.withRel("details"));
+		return new ResponseEntity<>(model,
 				HttpStatus.OK);
 	}
 
@@ -110,10 +126,10 @@ public class CartController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@DeleteMapping("/{cart-uid}/items/{cart-item-uid}")
+	@DeleteMapping("/{cart-uid}/items/{item-uid}")
 	@ServiceOperation("removeCartItem")
 	public ResponseEntity<GetCartItemResponse> removeCartItem(@PathVariable("cart-uid") Long cartUid,
-			@PathVariable("cart-item-uid") Long cartItemUid) {
+			@PathVariable("item-uid") Long cartItemUid) {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

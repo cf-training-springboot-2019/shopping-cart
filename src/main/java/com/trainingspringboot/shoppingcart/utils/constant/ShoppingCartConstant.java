@@ -28,4 +28,15 @@ public class ShoppingCartConstant {
 	public static final String LOGGING_HANDLER_OUTBOUND_MSG = "Responded with Status [%s] at [%s]";
 	public static final String LOGGING_HANDLER_PROCESS_TIME_MSG = "Total processing time [%s] ms";
 
+	/**
+	 * Rest Client
+	 */
+	public static final String ITEM_STORAGE_BASE_URL = "http://localhost:8080/item-storage/api/v1/items";
+	public static final String ITEM_STORAGE_DISPATCH_URI = "dispatch";
+
+	/**
+	 * Misc
+	 */
+	public static final String FRONT_SLASH_SEPARATOR = "/";
+
 }

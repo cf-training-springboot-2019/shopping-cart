@@ -100,9 +100,9 @@ public class CartService implements ICartService {
 		).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 
-	public CartItem getCartItem(Long cartUid, Long cartItemUid) {
+	public CartItem getCartItem(Long cartUid, Long itemUid) {
 		exists(cartUid);
-		return cartItemService.getCartCartItem(cartItemUid, cartUid);
+		return cartItemService.getCartCartItem(itemUid, cartUid);
 	}
 
 	private void exists(Long cartUid) {
