@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class CartService implements ICartService {
 	private CartItemService cartItemService;
 
 	@Autowired
-	private ItemStorageRestClientService itemStorageService;
+	private ItemClient itemClient;
 
 
 	@Override
@@ -58,7 +60,7 @@ public class CartService implements ICartService {
 		if (entity.getState().equalsIgnoreCase(EnumCartState.SUBMITTED.name()) && !cart.getState()
 				.equalsIgnoreCase(EnumCartState.SUBMITTED.name())) {
 			cart = get(entity.getCartUid());
-			cart.getItems().forEach(i -> itemStorageService
+			cart.getItems().forEach(i -> itemClient
 					.dispatchItem(i.getItemUid(), DispatchItemRequest.builder().quantity(i.getQuantity()).build()));
 		}
 		if (!cart.getState().equalsIgnoreCase(EnumCartState.SUBMITTED.name())) {
@@ -74,13 +76,13 @@ public class CartService implements ICartService {
 		cart.setState(EnumCartState.PENDING.name());
 		Map<Long, CartItem> cartItemMap = cart.getItems().stream()
 				.collect(Collectors.toMap(CartItem::getItemUid, Function.identity(), (existing, replacement) -> {
-					itemStorageService.getStoredItem(existing.getItemUid());
 					existing.setQuantity(existing.getQuantity() + replacement.getQuantity());
 					return existing;
 				}));
 		cart.setItems(cartItemMap.values().stream().collect(Collectors.toList()));
 		final Cart persistedCart = cartRepository.save(cart);
 		cart.getItems().stream().forEach(cartItem -> {
+			itemClient.getItem(cartItem.getItemUid());
 			cartItem.setCart(persistedCart);
 			cartItemService.save(cartItem);
 		});
@@ -95,7 +97,7 @@ public class CartService implements ICartService {
 	@Override
 	public BigDecimal calculateCartTotal(Cart cart) {
 		return cart.getItems().stream().map(cartItem ->
-				itemStorageService.getStoredItem(cartItem.getItemUid())
+				itemClient.getItem(cartItem.getItemUid()).getBody()
 						.getPriceTag().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
 		).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
