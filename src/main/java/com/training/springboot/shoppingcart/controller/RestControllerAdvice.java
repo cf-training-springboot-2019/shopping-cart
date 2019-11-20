@@ -2,6 +2,7 @@ package com.training.springboot.shoppingcart.controller;
 
 import com.training.springboot.shoppingcart.entity.response.ErrorMessage;
 import com.training.springboot.shoppingcart.error.EntityNotFoundException;
+import com.training.springboot.shoppingcart.error.ServiceNotAvailableException;
 import com.training.springboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -23,6 +24,11 @@ public class RestControllerAdvice {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorMessage> handleBadRequest(Exception e) {
 		return buildErrorMessageResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(ServiceNotAvailableException.class)
+	public ResponseEntity<ErrorMessage> handleBadGateway(Exception e) {
+		return buildErrorMessageResponseEntity(e.getMessage(), HttpStatus.BAD_GATEWAY);
 	}
 
 	@ExceptionHandler(Exception.class)
