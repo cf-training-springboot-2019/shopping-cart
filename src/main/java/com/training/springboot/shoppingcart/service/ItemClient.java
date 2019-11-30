@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "item-storage")
+@FeignClient(name = "item-storage", fallback = ItemClientFallback.class)
 public interface ItemClient {
 
 	@GetMapping("/item-storage/api/v1/items/{id}")
