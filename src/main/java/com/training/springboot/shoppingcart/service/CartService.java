@@ -28,7 +28,7 @@ public class CartService implements ICartService {
 	private CartItemService cartItemService;
 
 	@Autowired
-	private ItemClient itemClient;
+	private ItemStorageRestClientService itemClient;
 
 
 	@Override
@@ -95,7 +95,7 @@ public class CartService implements ICartService {
 	@Override
 	public BigDecimal calculateCartTotal(Cart cart) {
 		return cart.getItems().stream().map(cartItem ->
-				itemClient.getItem(cartItem.getItemUid()).getBody()
+				itemClient.getItem(cartItem.getItemUid())
 						.getPriceTag().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
 		).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add);
 	}

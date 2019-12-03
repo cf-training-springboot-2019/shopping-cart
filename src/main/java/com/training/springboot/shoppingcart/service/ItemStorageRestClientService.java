@@ -17,7 +17,7 @@ public class ItemStorageRestClientService {
 	private RestTemplate restTemplate;
 
 
-	public GetItemResponse getStoredItem(Long itemUid) {
+	public GetItemResponse getItem(Long itemUid) {
 		return restTemplate
 				.getForEntity(String.join(FRONT_SLASH_SEPARATOR, ITEM_STORAGE_BASE_URL, String.valueOf(itemUid)),
 						GetItemResponse.class).getBody();
