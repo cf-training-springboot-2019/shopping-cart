@@ -1,5 +1,9 @@
 package com.training.springboot.shoppingcart.controller;
 
+import static com.training.springboot.shoppingcart.utils.constant.ShoppingCartConstant.ITEM_STORAGE_BASE_URL;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import com.training.springboot.shoppingcart.entity.model.Cart;
 import com.training.springboot.shoppingcart.entity.request.CreateCartRequest;
 import com.training.springboot.shoppingcart.entity.response.CreateCartResponse;
@@ -8,11 +12,18 @@ import com.training.springboot.shoppingcart.entity.response.GetCartResponse;
 import com.training.springboot.shoppingcart.entity.response.UpdateCartRequest;
 import com.training.springboot.shoppingcart.entity.response.UpdateCartResponse;
 import com.training.springboot.shoppingcart.service.CartService;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +34,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -46,10 +58,13 @@ public class CartController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<GetCartResponse> getCart(@PathVariable("id") Long id) {
+	public ResponseEntity<EntityModel<GetCartResponse>> getCart(@PathVariable("id") Long id) {
 		Cart cart = cartService.get(id);
-		GetCartResponse response = mapper.map(cart, GetCartResponse.class);
-		response.setTotal(cartService.calculateCartTotal(cart));
+		GetCartResponse cartResponse = mapper.map(cart, GetCartResponse.class);
+		cartResponse.setTotal(cartService.calculateCartTotal(cart));
+		EntityModel<GetCartResponse> response = new EntityModel<>(cartResponse,
+				linkTo(methodOn(CartController.class).getCart(id)).withSelfRel()
+		);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -67,24 +82,28 @@ public class CartController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<GetCartResponse>> listCarts() {
-		return new ResponseEntity<>(
-				cartService.list().stream().map(c -> {
+	public ResponseEntity<Page<GetCartResponse>> listCarts(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "20") int size) {
+		return new ResponseEntity<>(new PageImpl<>(
+				cartService.list(page, size).stream().map(c -> {
 							GetCartResponse response = mapper.map(c, GetCartResponse.class);
 							response.setTotal(cartService.calculateCartTotal(c));
 							return response;
 						}
 				)
-						.collect(Collectors.toList()), HttpStatus.OK);
+						.collect(Collectors.toList())), HttpStatus.OK);
 	}
 
-	@GetMapping("/{id}/items")
-	public ResponseEntity<List<GetCartItemResponse>> listCartItems(
-			@PathVariable("id") Long cartUid) {
-		List<GetCartItemResponse> cartItemResponseList = cartService.listCartItems(cartUid).stream()
-				.map(i -> mapper.map(i, GetCartItemResponse.class)).collect(
-						Collectors.toList());
-		return new ResponseEntity<>(cartItemResponseList, HttpStatus.OK);
+	@GetMapping("/{cart-uid}/items")
+	public ResponseEntity<CollectionModel<EntityModel<GetCartItemResponse>>> listCartItems(
+			@PathVariable("cart-uid") Long cartUid) {
+		List<EntityModel<GetCartItemResponse>> entityModels = cartService.listCartItems(cartUid).stream().map(c ->
+				new EntityModel<>(mapper.map(c, GetCartItemResponse.class),
+						linkTo(methodOn(CartController.class).getCartItem(cartUid, c.getItemUid())).withRel("Get item"),
+						linkTo(methodOn(CartController.class).deleteItem(c.getItemUid())).withRel("Decrease item qty"),
+						new Link(String.join("/", Arrays.asList(ITEM_STORAGE_BASE_URL, String.valueOf(c.getItemUid()))), "details"))
+		).collect(Collectors.toList());
+		return new ResponseEntity<>(new CollectionModel<>(entityModels), HttpStatus.OK);
 	}
 
 	@GetMapping("/{cart-uid}/items/{item-uid}")
