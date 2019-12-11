@@ -1,6 +1,5 @@
 package com.training.springboot.shoppingcart.entity.model;
 
-import java.time.Instant;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,10 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
@@ -26,7 +21,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Cart {
+public class Cart extends Auditable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,14 +30,5 @@ public class Cart {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CartItem> items;
 	private String state;
-	@CreatedDate
-	private Instant createdAt;
-	@LastModifiedDate
-	private Instant modifiedAt;
-	@CreatedBy
-	private String createdBy;
-	@LastModifiedBy
-	private String lastModifiedBy;
-
 
 }
