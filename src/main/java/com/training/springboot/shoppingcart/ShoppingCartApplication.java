@@ -11,9 +11,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@EnableFeignClients
-@EnableCircuitBreaker
-@EnableDiscoveryClient
+/**
+ * TODO: Add required annotations to:
+ * 	- Use Feign client classes
+ * 	- Enable Hystrix Circuit Breaker
+ * 	- Register this application in the service discovery
+ */
 @SpringBootApplication
 public class ShoppingCartApplication {
 
