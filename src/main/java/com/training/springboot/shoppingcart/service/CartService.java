@@ -8,27 +8,26 @@ import com.training.springboot.shoppingcart.error.EntityNotFoundException;
 import com.training.springboot.shoppingcart.repository.CartRepository;
 import com.training.springboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@RequiredArgsConstructor
 @Service
 public class CartService implements ICartService {
 
-	@Autowired
-	private CartRepository cartRepository;
+	private final CartRepository cartRepository;
 
-	@Autowired
-	private CartItemService cartItemService;
+	private final CartItemService cartItemService;
 
-	@Autowired
-	private ItemClient itemClient;
+	private final ItemClient itemClient;
 
 
 	@Override
@@ -77,9 +76,11 @@ public class CartService implements ICartService {
 					existing.setQuantity(existing.getQuantity() + replacement.getQuantity());
 					return existing;
 				}));
-		cart.setItems(cartItemMap.values().stream().collect(Collectors.toList()));
+
+		cart.setItems(new ArrayList<>(cartItemMap.values()));
+
 		final Cart persistedCart = cartRepository.save(cart);
-		cart.getItems().stream().forEach(cartItem -> {
+		cart.getItems().forEach(cartItem -> {
 			itemClient.getItem(cartItem.getItemUid());
 			cartItem.setCart(persistedCart);
 			cartItemService.save(cartItem);

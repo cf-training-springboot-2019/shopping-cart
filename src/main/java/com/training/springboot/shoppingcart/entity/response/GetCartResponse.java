@@ -6,12 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.hateoas.RepresentationModel;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetCartResponse {
+public class GetCartResponse extends RepresentationModel<GetCartResponse> {
 
 	private Long cartUid;
 	private List<GetCartItemResponse> items;

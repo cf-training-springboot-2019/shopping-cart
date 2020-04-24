@@ -5,17 +5,17 @@ import com.training.springboot.shoppingcart.error.EntityNotFoundException;
 import com.training.springboot.shoppingcart.repository.CartItemRepository;
 import com.training.springboot.shoppingcart.utils.constant.ShoppingCartConstant;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CartItemService implements ICartItemService {
 
-
-	@Autowired
-	private CartItemRepository cartItemRepository;
+	private final CartItemRepository cartItemRepository;
 
 	@Override
 	public List<CartItem> listCartItems(Long cartUid) {

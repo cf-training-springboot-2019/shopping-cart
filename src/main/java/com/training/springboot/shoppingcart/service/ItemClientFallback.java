@@ -15,21 +15,5 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemClientFallback implements ItemClient {
 
-
-
-	@Override
-	public ResponseEntity<GetItemResponse> getItem(Long id) {
-		log.error("Failed to retrieve item with id {}", id);
-		return null;
-	}
-
-	@Override
-	public ResponseEntity<List<GetItemResponse>> listItems() {
-		throw new ServiceNotAvailableException(ITEM_STORAGE_SERVICE);
-	}
-
-	@Override
-	public ResponseEntity<HttpStatus> dispatchItem(Long id, DispatchItemRequest request) {
-		throw new ServiceNotAvailableException(ITEM_STORAGE_SERVICE);
-	}
+	// TODO: Implement the fallback behaviour for each of the services. HINT: only do this after completing ItemClient TODO.
 }

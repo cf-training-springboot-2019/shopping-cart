@@ -17,8 +17,8 @@ import com.training.springboot.shoppingcart.utils.annotation.ServiceOperation;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.CollectionModel;
@@ -37,19 +37,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/carts")
 public class CartController {
 
-	@Autowired
-	private CartService cartService;
+	private final CartService cartService;
 
 	/**
 	 * @JavaDoc ModelMapper is a mapping tool easily configurable to accommodate most application defined entities check
 	 * some configuration example at: http://modelmapper.org/user-manual/
 	 */
-	@Autowired
-	private ModelMapper mapper;
+	private final ModelMapper mapper;
 
 	@PostMapping
 	@ServiceOperation("createCart")

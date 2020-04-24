@@ -6,15 +6,16 @@ import static com.training.springboot.shoppingcart.utils.constant.ShoppingCartCo
 
 import com.training.springboot.shoppingcart.entity.request.DispatchItemRequest;
 import com.training.springboot.shoppingcart.entity.response.GetItemResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@RequiredArgsConstructor
 @Service
 public class ItemStorageRestClientService {
 
-	@Autowired
-	private RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 
 
 	public GetItemResponse getStoredItem(Long itemUid) {

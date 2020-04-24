@@ -12,20 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "item-storage", fallback = ItemClientFallback.class)
+// TODO: Complete this interface using OpenFeign
 public interface ItemClient {
 
-	@GetMapping("/item-storage/api/v1/items/{id}")
-	@ServiceOperation("getItem")
-	ResponseEntity<GetItemResponse> getItem(@PathVariable("id") Long id);
-
-	@GetMapping("/item-storage/api/v1/items")
-	@ServiceOperation("listItems")
-	ResponseEntity<List<GetItemResponse>> listItems();
-
-	@PostMapping("/item-storage/api/v1/items/{id}/dispatch")
-	@ServiceOperation("dispatchItem")
-	ResponseEntity<HttpStatus> dispatchItem(@PathVariable("id") Long id,
-			@RequestBody DispatchItemRequest request);
 
 }
