@@ -28,4 +28,10 @@ public class Cart {
 	private List<CartItem> items;
 	private String state;
 
+//TODO ADD Auditable fields included below
+/*	private Instant createdAt;
+	private Instant modifiedAt;
+	private String createdBy;
+	private String lastModifiedBy;
+	*/
 }

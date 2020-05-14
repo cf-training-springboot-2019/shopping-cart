@@ -12,28 +12,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class CartService implements ICartService {
 
-	@Autowired
-	private CartRepository cartRepository;
+	private final CartRepository cartRepository;
 
-	@Autowired
-	private CartItemService cartItemService;
+	private final CartItemService cartItemService;
 
-	@Autowired
-	private ItemStorageRestClientService itemClient;
+	private final ItemStorageRestClientService itemClient;
 
 
 	@Override
 	public Page<Cart> list(int page, int size) {
-		return cartRepository.findAll(PageRequest.of(page, size));
+		//TODO return Paged Cart based on PageRequest
+		return null;
 	}
 
 	@Override
@@ -68,8 +65,8 @@ public class CartService implements ICartService {
 		return cart;
 	}
 
+	//TODO Convert method to become transactional denying cart/cartItem persistence if item in cart item list does not exist.
 	@Override
-	@Transactional
 	public Cart save(Cart cart) {
 		cart.setState(EnumCartState.PENDING.name());
 		Map<Long, CartItem> cartItemMap = cart.getItems().stream()

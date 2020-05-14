@@ -1,6 +1,7 @@
 package com.training.springboot.shoppingcart.controller;
 
 import com.training.springboot.shoppingcart.entity.model.Cart;
+import com.training.springboot.shoppingcart.entity.request.CreateCartItemRequest;
 import com.training.springboot.shoppingcart.entity.request.CreateCartRequest;
 import com.training.springboot.shoppingcart.entity.response.CreateCartResponse;
 import com.training.springboot.shoppingcart.entity.response.GetCartItemResponse;
@@ -11,8 +12,10 @@ import com.training.springboot.shoppingcart.service.CartService;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,16 +30,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/carts")
+@RequiredArgsConstructor
 public class CartController {
 
-	@Autowired
-	private CartService cartService;
+	private final CartService cartService;
 
 	/**
 	 * @JavaDoc ModelMapper is a mapping tool easily configurable to accommodate most application defined entities check
 	 * some configuration example at: http://modelmapper.org/user-manual/
 	 */
-	@Autowired
 	private ModelMapper mapper;
 
 	@PostMapping
@@ -46,10 +48,12 @@ public class CartController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<GetCartResponse> getCart(@PathVariable("id") Long id) {
+	public ResponseEntity<EntityModel<GetCartResponse>> getCart(@PathVariable("id") Long id) {
 		Cart cart = cartService.get(id);
-		GetCartResponse response = mapper.map(cart, GetCartResponse.class);
-		response.setTotal(cartService.calculateCartTotal(cart));
+		GetCartResponse getCartResponse = mapper.map(cart, GetCartResponse.class);
+		getCartResponse.setTotal(cartService.calculateCartTotal(cart));
+		EntityModel<GetCartResponse> response = null;
+		//TODO wrap GetCartResponse inside EntityModel response and add selfref link
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -78,6 +82,7 @@ public class CartController {
 						.collect(Collectors.toList()), HttpStatus.OK);
 	}
 
+
 	@GetMapping("/{id}/items")
 	public ResponseEntity<List<GetCartItemResponse>> listCartItems(
 			@PathVariable("id") Long cartUid) {
@@ -95,13 +100,15 @@ public class CartController {
 	}
 
 	@PutMapping("/{id}/items")
-	public ResponseEntity<HttpStatus> addCartItem(@PathVariable("id") Long cartUid) {
+	public ResponseEntity<HttpStatus> addCartItem(@PathVariable("id") Long cartUid, @RequestBody CreateCartItemRequest createCartItemRequest) {
+		//TODO ADD item and respective quantity within request to cart
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{cart-uid}/items/{item-uid}")
 	public ResponseEntity<GetCartItemResponse> removeCartItem(@PathVariable("cart-uid") Long cartUid,
 			@PathVariable("item-uid") Long cartItemUid) {
+		//TODO Remove item from cart
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
