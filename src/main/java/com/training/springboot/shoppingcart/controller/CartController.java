@@ -39,7 +39,7 @@ public class CartController {
 	 * @JavaDoc ModelMapper is a mapping tool easily configurable to accommodate most application defined entities check
 	 * some configuration example at: http://modelmapper.org/user-manual/
 	 */
-	private ModelMapper mapper;
+	private final ModelMapper mapper;
 
 	@PostMapping
 	public ResponseEntity<CreateCartResponse> createCart(@RequestBody @Valid CreateCartRequest request) {
