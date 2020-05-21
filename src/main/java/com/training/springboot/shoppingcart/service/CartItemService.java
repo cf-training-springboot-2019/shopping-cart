@@ -29,7 +29,6 @@ public class CartItemService implements ICartItemService {
 
 	@Override
 	public void removeItem(CartItem item) {
-
 	}
 
 
@@ -58,7 +57,10 @@ public class CartItemService implements ICartItemService {
 
 	@Override
 	public void delete(Long id) {
-
+		CartItem itemToDelete = cartItemRepository.getOne(id);
+		if (itemToDelete != null) {
+			cartItemRepository.delete(itemToDelete);
+		}
 	}
 
 	@Override

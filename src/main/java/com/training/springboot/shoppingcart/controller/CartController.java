@@ -140,7 +140,7 @@ public class CartController {
 			cartWithItem.getItems().add(cartItemService.save(newCartItem));
 		} else {
 			cartItemToUpdate.setItemUid(itemUid);
-			cartItemToUpdate.setQuantity(quantity);
+			cartItemToUpdate.setQuantity(cartItemToUpdate.getQuantity() + quantity);
 		}
 
 		cartService.save(cartWithItem);
@@ -149,7 +149,15 @@ public class CartController {
 
 	@DeleteMapping("/{cart-uid}/items/{item-uid}")
 	public ResponseEntity<GetCartItemResponse> removeCartItem(@PathVariable("cart-uid") Long cartUid,
-			@PathVariable("item-uid") Long cartItemUid) {
+			@PathVariable("item-uid") Long itemUid) {
+
+		Cart cartToUpdate = cartService.get(cartUid);
+		cartToUpdate.getItems().forEach(cartItem -> {
+			if (cartItem.getItemUid().equals(itemUid)) {
+				cartItemService.delete(cartItem.getCartItemUid());
+			}
+		});
+
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
