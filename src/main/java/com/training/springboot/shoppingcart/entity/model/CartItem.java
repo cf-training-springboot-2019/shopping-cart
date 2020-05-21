@@ -5,7 +5,10 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -25,8 +28,11 @@ public class CartItem extends Auditable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cartItemUid;
+
 	@ManyToOne
+	@JoinColumn(name="cart_id", nullable=false)
 	private Cart cart;
+
 	@NotNull
 	@PositiveOrZero
 	private Long itemUid;
