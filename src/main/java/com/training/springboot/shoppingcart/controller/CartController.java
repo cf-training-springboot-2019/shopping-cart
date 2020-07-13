@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -71,7 +72,10 @@ public class CartController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<GetCartResponse>> listCarts() {
+	public ResponseEntity<List<GetCartResponse>> listCarts(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "20") int size,
+			@RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+			@RequestParam(value = "order", defaultValue = "ASC") String order) {
 		return new ResponseEntity<>(
 				cartService.list().stream().map(c -> {
 							GetCartResponse response = mapper.map(c, GetCartResponse.class);
