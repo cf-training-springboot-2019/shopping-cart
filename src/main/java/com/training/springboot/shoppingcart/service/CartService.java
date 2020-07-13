@@ -26,10 +26,8 @@ public class CartService implements ICartService {
 
 	private final ItemStorageRestClientService itemClient;
 
-
 	@Override
-	public Page<Cart> list(int page, int size) {
-		//TODO return Paged Cart based on PageRequest
+	public Page<Cart> list(int page, int size, String field, String order) {
 		return null;
 	}
 
