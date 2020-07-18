@@ -2,6 +2,9 @@ package com.training.springboot.shoppingcart.controller;
 
 import com.training.springboot.shoppingcart.entity.response.ErrorMessage;
 import com.training.springboot.shoppingcart.error.EntityNotFoundException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,10 +30,23 @@ public class ErrorHandlerController {
 		return buildErrorMessageResponseEntity(e, HttpStatus.NOT_FOUND);
 	}
 
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<ErrorMessage> handleConflict(ConstraintViolationException e) {
+		String message = e.getConstraintViolations()
+				.stream()
+				.map(c -> String.join(" ", Arrays.asList(c.getPropertyPath().toString(), c.getMessage())))
+				.collect(Collectors.joining(". "));
+		return buildErrorMessageResponseEntity(new RuntimeException(message), HttpStatus.CONFLICT);
+	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorMessage> handleIBadRequest(MethodArgumentNotValidException e) {
-		return buildErrorMessageResponseEntity(e, HttpStatus.BAD_REQUEST);
+		String message = e.getBindingResult().getFieldErrors()
+				.stream()
+				.map(f -> String.join(" ", Arrays.asList(f.getField(), f.getDefaultMessage())))
+				.sorted()
+				.collect(Collectors.joining(". "));
+		return buildErrorMessageResponseEntity(new RuntimeException(message), HttpStatus.BAD_REQUEST);
 	}
 
 }

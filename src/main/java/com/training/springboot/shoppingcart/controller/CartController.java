@@ -85,10 +85,12 @@ public class CartController {
 
 	@GetMapping
 	public ResponseEntity<Page<GetCartResponse>> listCarts(@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "20") int size) {
-		Page<Cart> cartPage = cartService.list(page, size);
+			@RequestParam(value = "size", defaultValue = "20") int size,
+			@RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+			@RequestParam(value = "order", defaultValue = "ASC") String order) {
+		Page<Cart> cartPage = cartService.list(page, size, sortBy, order);
 		return new ResponseEntity<>(new PageImpl<>(
-				cartService.list(page, size).stream().map(c -> {
+				cartPage.getContent().stream().map(c -> {
 							GetCartResponse response = mapper.map(c, GetCartResponse.class);
 							response.setTotal(cartService.calculateCartTotal(c));
 							return response;

@@ -39,9 +39,10 @@ public class CartItemService implements ICartItemService {
 						ShoppingCartConstant.CART_ITEM, itemUid));
 	}
 
+
 	@Override
-	public Page<CartItem> list(int page, int size) {
-		return cartItemRepository.findAll(PageRequest.of(page, size));
+	public Page<CartItem> list(int page, int size, String field, String order) {
+		return null;
 	}
 
 	@Override

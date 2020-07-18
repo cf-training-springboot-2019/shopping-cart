@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 
 public interface ICrudService<T extends Object> {
 
-	Page<T> list(int page, int size);
+	Page<T> list(int page, int size, String field, String order);
 
 	List<T> list();
 

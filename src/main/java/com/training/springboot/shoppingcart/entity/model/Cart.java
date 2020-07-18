@@ -34,9 +34,4 @@ public class Cart extends Auditable {
 	private List<CartItem> items;
 	private String state;
 
-	private Instant createdAt;
-	private Instant modifiedAt;
-	private String createdBy;
-	private String lastModifiedBy;
-
 }

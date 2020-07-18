@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +34,8 @@ public class CartService implements ICartService {
 
 
 	@Override
-	public Page<Cart> list(int page, int size) {
-		return cartRepository.findAll(PageRequest.of(page, size));
+	public Page<Cart> list(int page, int size, String field, String order) {
+		return cartRepository.findAll(PageRequest.of(page, size, Sort.by(Direction.fromString(order), field)));
 	}
 
 	@Override
