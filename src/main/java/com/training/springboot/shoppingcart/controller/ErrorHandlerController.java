@@ -2,6 +2,7 @@ package com.training.springboot.shoppingcart.controller;
 
 import com.training.springboot.shoppingcart.entity.response.ErrorMessage;
 import com.training.springboot.shoppingcart.error.EntityNotFoundException;
+import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,6 +30,11 @@ public class ErrorHandlerController {
 	//TODO HANDLE MethodArgumentNotValidException
 	public ResponseEntity<ErrorMessage> handleIBadRequest(MethodArgumentNotValidException e) {
 		return buildErrorMessageResponseEntity(e, HttpStatus.BAD_REQUEST);
+	}
+
+	//TODO HANDLE ConstraintViolationException
+	public ResponseEntity<ErrorMessage> handleIBadRequest(ConstraintViolationException e) {
+		return buildErrorMessageResponseEntity(e, HttpStatus.CONFLICT);
 	}
 
 }
